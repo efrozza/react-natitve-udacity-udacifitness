@@ -1,24 +1,21 @@
-import React from 'react';
-import { View } from 'react-native';
-import AddEntry from './components/AddEntry';
+import React from 'react'
+import { View } from 'react-native'
+import AddEntry from './components/AddEntry'
+import { createStore } from 'redux'
+import { Provider } from 'react-redux'
+import reducer from './reducers'
 
 export default class App extends React.Component {
-  state = {
-    run: 0,
-    bike: 0,
-    swin: 0,
-    sleep: 0,
-    eat: 0,
-  };
-
-  componentDidMount() {
-    debugger;
+  componentDidMount () {
+    debugger
   }
-  render() {
+  render () {
     return (
-      <View>
-        <AddEntry />
-      </View>
-    );
+      <Provider store={createStore(reducer)}>
+        <View>
+          <AddEntry />
+        </View>
+      </Provider>
+    )
   }
 }
