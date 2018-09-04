@@ -3,8 +3,8 @@ import {
   View,
   TouchableOpacity,
   Text,
-  Platform,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import {
   getMetricMetaInfo,
@@ -19,13 +19,14 @@ import TextButton from './TextButton';
 import { submitEntry, removeEntry } from '../utils/api';
 import { connect } from 'react-redux';
 import { addEntry } from '../actions';
-import { white, purple } from '../utils/color';
+import { purple, white } from '../utils/color';
+import { NavigationActions } from 'react-navigation';
 
 function SubmitBtn({ onPress }) {
   return (
     <TouchableOpacity
       style={
-        Platform.OS === 'ios' ? styles.iosSubmitBtn : styles.androidSubmitBtn
+        Platform.OS === 'ios' ? styles.iosSubmitBtn : styles.AndroidSubmitBtn
       }
       onPress={onPress}
     >
@@ -33,16 +34,14 @@ function SubmitBtn({ onPress }) {
     </TouchableOpacity>
   );
 }
-
 class AddEntry extends Component {
   state = {
-    run: 10,
+    run: 0,
     bike: 0,
-    swim: 15,
+    swim: 0,
     sleep: 0,
     eat: 0,
   };
-
   increment = metric => {
     const { max, step } = getMetricMetaInfo(metric);
 
@@ -55,7 +54,6 @@ class AddEntry extends Component {
       };
     });
   };
-
   decrement = metric => {
     this.setState(state => {
       const count = state[metric] - getMetricMetaInfo(metric).step;
@@ -66,37 +64,29 @@ class AddEntry extends Component {
       };
     });
   };
-
   slide = (metric, value) => {
     this.setState(() => ({
       [metric]: value,
     }));
   };
-
   submit = () => {
     const key = timeToString();
     const entry = this.state;
 
-    //updade redux
     this.props.dispatch(
       addEntry({
         [key]: entry,
       }),
     );
 
-    this.setState(() => ({
-      run: 0,
-      bike: 0,
-      swim: 0,
-      sleep: 0,
-      eat: 0,
-    }));
+    this.setState(() => ({ run: 0, bike: 0, swim: 0, sleep: 0, eat: 0 }));
 
-    //navigate to home
+    this.toHome();
+
     submitEntry({ key, entry });
-    //clearly notifications
-  };
 
+    // Clear local notification
+  };
   reset = () => {
     const key = timeToString();
 
@@ -105,9 +95,14 @@ class AddEntry extends Component {
         [key]: getDailyReminderValue(),
       }),
     );
+
+    this.toHome();
+
     removeEntry(key);
   };
-
+  toHome = () => {
+    this.props.navigation.dispatch(NavigationActions.back({ key: 'AddEntry' }));
+  };
   render() {
     const metaInfo = getMetricMetaInfo();
 
@@ -118,7 +113,7 @@ class AddEntry extends Component {
             name={Platform.OS === 'ios' ? 'ios-happy-outline' : 'md-happy'}
             size={100}
           />
-          <Text>You already logged your information for today</Text>
+          <Text>You already logged your information for today.</Text>
           <TextButton style={{ padding: 10 }} onPress={this.reset}>
             Reset
           </TextButton>
@@ -176,13 +171,13 @@ const styles = StyleSheet.create({
     marginLeft: 40,
     marginRight: 40,
   },
-  androidSubmitBtn: {
+  AndroidSubmitBtn: {
     backgroundColor: purple,
     padding: 10,
     paddingLeft: 30,
     paddingRight: 30,
-    borderRadius: 2,
     height: 45,
+    borderRadius: 2,
     alignSelf: 'flex-end',
     justifyContent: 'center',
     alignItems: 'center',
